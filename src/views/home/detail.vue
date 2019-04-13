@@ -53,7 +53,7 @@
             <span>{{value.name}}</span>
             <div class="bottom clearfix">
               <span>{{ '¥' + value.price.number }}</span>
-              <el-button type="text" class="button" @click="buy" :aa="value.id" ref="bb">购买</el-button>
+              <el-button type="text" class="button" @click="buy" :data-aa="value.id" ref="aa">购买</el-button>
             </div>
           </div>
         </el-card>
@@ -101,6 +101,7 @@ export default {
       page: 1
     };
   },
+  
   methods: {
     handleOpen() {},
     handleClose() {},
@@ -122,28 +123,66 @@ export default {
         method: "get"
       }).then(res => {
         that.$store.state.shopList = [...res.data];
-        console.log(that.$store.state.shopList);
+        //console.log(that.$store.state.shopList);
       });
     },
     buy(event) {
-      //1路由跳转
-      //2带参数
-      var p = event.target.parentNode.getAttribute("aa");
-      //得到当前按钮的id值
-      //去找到状态里的这个id,把count值+1
-      //console.log(p);
-      //console.log(this.$store.state.shopList);
-
-      _.find(this.$store.state.shopList, function(o) {
-        return o.id == p;
-      }).count = 1;
-      console.log(this.$store.state.shopList);
-
-      this.$router.push({ name: "cart", params: { id: p } });
-
-      //console.log(this.$router);
-      //{ name: 'user', params: { userId: '123' }}
-      //path: `/cart/${event.target.parentNode.getAttribute("aa")}`
+      // 得到id值
+      var p = event.target.parentNode.getAttribute("data-aa");
+      if (localStorage.getItem("shopList")) {
+        try {
+          //1.把localstorage值给state
+          this.$store
+            .dispatch(
+              "updatashopList",
+              JSON.parse(localStorage.getItem("shopList"))
+            )
+            .then(() => {
+              //2. 改state值
+              var current = _.find(this.$store.state.shopList, function(o) {
+                return o.id == p;
+              });
+              current.count += 1;
+            })
+            .then(() => {
+              //3. 存state值
+              localStorage.setItem(
+                "shopList",
+                JSON.stringify(this.$store.state.shopList)
+              );
+            })
+            .then(() => {
+              this.$router.push({ name: "cart", query: { id: p } });
+            });
+        } catch (e) {
+          // 文件坏掉就删掉重新保存
+          localStorage.removeItem("shopList");
+          this.$store
+            .dispatch("modifyshopList", p)
+            .then(() => {
+              localStorage.setItem(
+                "shopList",
+                JSON.stringify(this.$store.state.shopList)
+              );
+            })
+            .then(() => {
+              this.$router.push({ name: "cart", query: { id: p } });
+            });
+        }
+      } else {
+        // 新增
+        this.$store
+          .dispatch("modifyshopList", p)
+          .then(() => {
+            localStorage.setItem(
+              "shopList",
+              JSON.stringify(this.$store.state.shopList)
+            );
+          })
+          .then(() => {
+            this.$router.push({ name: "cart", query: { id: p } });
+          });
+      }
     }
   },
 
@@ -153,3 +192,4 @@ export default {
   }
 };
 </script>
+

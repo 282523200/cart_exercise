@@ -1,46 +1,84 @@
 <template>
+  <!-- title -->
   <div>
-    <!--  数组为空显示
-     <p v-show="!products.length"><i>Please add some products to cart.</i></p> 
-    -->
-    <!--  数组为空可以点击    
-      <p><button :disabled="!products.length" @click="checkout(products)">Checkout</button></p>
-    -->
-    
-    <!-- <el-table :data="tableData" style="width: 100%">
-      
-      <el-table-column type="selection" width="70"></el-table-column>
+    <el-row>
+      <el-col :span="2">
+        <div class="grid-content bg-purple">
+          <el-checkbox
+            :indeterminate="isIndeterminate"
+            v-model="checkAll"
+            @change="handleCheckAllChange"
+          >全选</el-checkbox>
+        </div>
+      </el-col>
+      <el-col :span="4">
+        <div class="grid-content bg-purple-light">名字</div>
+      </el-col>
+      <el-col :span="4">
+        <div class="grid-content bg-purple">图片</div>
+      </el-col>
+      <el-col :span="4">
+        <div class="grid-content bg-purple-light">价格</div>
+      </el-col>
+      <el-col :span="4">
+        <div class="grid-content bg-purple">数量</div>
+      </el-col>
+      <el-col :span="4">
+        <div class="grid-content bg-purple-light">合计</div>
+      </el-col>
+      <el-col :span="2">
+        <div class="grid-content bg-purple-light">删除</div>
+      </el-col>
+    </el-row>
 
-      <el-table-column prop="time" width="120"></el-table-column>
+    <!-- 购物车 -->
+    <template v-if="boolean">
+      <el-row v-for="(item,i) in this.$store.state.cartlist">
+        <el-col :span="2">
+          <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange">
+            33
+            <el-checkbox v-for="city in cities" :label="city" :key="city">{{city}}</el-checkbox>22
+          </el-checkbox-group>
+        </el-col>
+        <el-col :span="4">{{item.name}}</el-col>
+        <el-col :span="4">
+          <img :src="item.img" alt style="width:50px;heigh:50px;">
+        </el-col>
+        <el-col :span="4">${{item.price.number}}.00</el-col>
+        <el-col :span="4">
+          <el-button size="mini" @click="minus">-</el-button>
+          <el-input-number
+            style="width:100px;"
+            :controls="false"
+            size="mini"
+            :value="item.count"
+            @change="handleChange"
+            :min="1"
+            :max="10"
+          ></el-input-number>
+          <el-button size="mini" @click="add">+</el-button>
+        </el-col>
+        <el-col :span="4">${{item.price.number*item.count}}.00</el-col>
+        <el-col :span="2">
+          <el-button type="danger">删除</el-button>
+        </el-col>
+      </el-row>
+    </template>
 
-      <el-table-column prop="name" label="姓名" width="120"></el-table-column>
+    <template v-else>
+      <div>bb</div>
+    </template>
 
-      <el-table-column label="数量">
-        <el-input-number
-          v-model="num1"
-          @change.stop="handleChange"
-          :min="1"
-          :max="10"
-          controls-position="right"
-        ></el-input-number>
-      </el-table-column>
-
-      <el-table-column label="图片" width="120">
-        <img :src="tableData[0].img" alt style="width:30px;height:30px;">
-      </el-table-column>
-
-      <el-table-column prop="price.number" label="单价" width="120"></el-table-column>
-      <el-table-column prop="price.number" label="总价" width="120">{{tableData[0].price.number*num1}}</el-table-column>
-      <el-table-column label="操作">
-        <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
-      </el-table-column>
-    </el-table> 
-    -->
-    <div>aaaaaaaaaaaaaaaaaaaaaaaaa</div>
-    <div>aaaaaaaaaaaaaaaaaaaaaaaaa</div>
-    <div>aaaaaaaaaaaaaaaaaaaaaaaaa</div>
+    <!-- 总价 -->
+    <el-row>
+      <el-col :span="24">
+        <div class="grid-content bg-purple-dark">总价:111</div>
+      </el-col>
+    </el-row>
   </div>
 </template>
+    
+
 <style>
 .el-row {
   margin-bottom: 20px;
@@ -74,74 +112,33 @@ var _ = require("lodash");
 export default {
   data() {
     return {
-      //shopList: [],
-      num1: 1,
-      totle: 0,
-      tableData: []
+      boolean: true,
+      checkedCities: 1,
+      cities: 1,
+      num7: 2
     };
   },
-  computed: {},
+  computed: {
+    getshopList() {
+      return this.$store.getters.getshopList;
+    }
+  },
   methods: {
-    /*  getSummaries(param) {
-      const { columns, data } = param;
-      const sums = [];
-      columns.forEach((column, index) => {
-        if (index === 0) {
-          sums[index] = "总价";
-          return;
-        }
-        const values = data.map(item => Number(item[column.property]));
-        if (!values.every(value => isNaN(value))) {
-          sums[index] = values.reduce((prev, curr) => {
-            const value = Number(curr);
-            if (!isNaN(value)) {
-              return prev + curr;
-            } else {
-              return prev;
-            }
-          }, 0);
-          sums[index] += " 元";
-        } else {
-          sums[index] = "N/A";
-        }
-      });
-
-      return sums;
-    }, */
-    handleSelect() {},
-    activeIndex2() {},
-    select() {},
     handleChange(value) {
-      this.totle = this.shopList.price.number * value;
+      console.log(value);
     },
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-        });
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
+    add() {
+      console.log("add");
+      
     },
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
+    minus() {
+      console.log("minus");
+      
     }
   },
   mounted() {
-    var that = this;
-
-    this.axios({
-      url: `http://localhost:3000/product`,
-      method: "get"
-    }).then(res => {
-      //console.log(res.data);
-      var sid = _.findIndex(res.data, function(o) {
-        return o.id == that.$route.query.id;
-      });
-      that.tableData.push(res.data[sid]);
-
-      console.log(that.tableData);
-    });
+    this.$store.dispatch("updatacartlist", this.$store.getters.getshopList);
+    console.log(this.$store.state.cartlist);
   }
 };
 </script>
