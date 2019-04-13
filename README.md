@@ -1,6 +1,6 @@
 # front3
 
-## Project setup
+## 项目安装
 ```
 npm install
 ```
